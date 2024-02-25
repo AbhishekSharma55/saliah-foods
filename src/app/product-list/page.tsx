@@ -14,10 +14,7 @@ const getData = async () => {
 const ProductListPage = async () => {
 
   const data = await getData();
-  // const res = await fetch(
-  //   `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products`
-  // );
-  // const data = await res.json();
+
 
   return <ProductListProvider data={data} />;
 };
