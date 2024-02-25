@@ -5,14 +5,20 @@ import Link from "next/link";
 import Testimonials from "@/components/Landing/Testimonials";
 import DateSyrup from "@/components/Landing/DateSyrup";
 import ProductCollections from "@/components/Landing/ProductCollections";
-export default async function Home() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products`, {
-    next: {
-      revalidate: 3600,
-    }
-  })
-  const data = await res.json()
+import axios from "axios";
 
+const getData = async () => {
+  ("use server");
+  try {
+    const { data } = await axios.get(`/api/products`, {});
+    // const data = await res.json();
+
+    return data;
+  } catch (error) {}
+};
+export default async function Home() {
+
+  const data = await getData();
   return (
     <div className="overflow-hidden">
       <Image
@@ -66,13 +72,11 @@ export default async function Home() {
           <ProductCollections />
         </div>
         <div className="mx-auto flex w-fit justify-center items-center md:hidden">
-
           <Link href="/product-list">
             <Button
               text="View all"
               className="!bg-transparent text-primary-500 border border-[#D2B093] font-semibold px-10"
             />
-
           </Link>
         </div>
       </div>
