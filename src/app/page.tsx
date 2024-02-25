@@ -10,14 +10,13 @@ import axios from "axios";
 const getData = async () => {
   ("use server");
   try {
-    const { data } = await axios.get(`/api/products`, {});
-    // const data = await res.json();
-
+    const { data } = await axios.get(`/api/products`);
     return data;
-  } catch (error) {}
+  } catch (error) {
+    return [];
+  }
 };
 export default async function Home() {
-
   const data = await getData();
   return (
     <div className="overflow-hidden">
