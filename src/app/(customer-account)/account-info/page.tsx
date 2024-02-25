@@ -30,7 +30,7 @@ const MyAccount = () => {
   const [orders, setOrders] = useState<TransformedOrderDataType[]>();
   const { toggleSidebar, cartDispatch } = useCart();
 
-  const { wishlist, removeFromWishlist } = useWishlist()
+  const { wishlist, removeFromWishlist } = useWishlist();
 
   useEffect(() => {
     setUserInput({
@@ -38,7 +38,7 @@ const MyAccount = () => {
       phone: user?.phone || "",
       email: user?.email || "",
     });
-    return () => { };
+    return () => {};
   }, [user]);
 
   const handleLogout = async () => {
@@ -62,23 +62,30 @@ const MyAccount = () => {
   };
 
   const getOrders = async () => {
-    if (user?._id) {
-      const o = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/order`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId: user?._id }),
-      })
-        .then((res) => res.json())
-        .then(async (data) => {
-          if (data?.error) {
-            toast.error(data.error);
-          } else {
-            const transform = await transformedOrderData(data)
-            setOrders(transform);
+    try {
+      if (user?._id) {
+        const o = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/order`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ userId: user?._id }),
           }
-        });
+        )
+          .then((res) => res.json())
+          .then(async (data) => {
+            if (data?.error) {
+              toast.error(data.error);
+            } else {
+              const transform = await transformedOrderData(data);
+              setOrders(transform);
+            }
+          });
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
   const handleCart = (value: any) => {
@@ -105,12 +112,9 @@ const MyAccount = () => {
 
   useEffect(() => {
     getOrders();
-    return () => {
-    }
+    return () => {};
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user])
-
-
+  }, [user]);
 
   return (
     <>
@@ -142,10 +146,11 @@ const MyAccount = () => {
                 return (
                   <div
                     key={index}
-                    className={`pb-2 cursor-pointer ${menu === value.value
-                      ? "text-primary-500 border-b-2 border-primary-500"
-                      : "text-black-600"
-                      }`}
+                    className={`pb-2 cursor-pointer ${
+                      menu === value.value
+                        ? "text-primary-500 border-b-2 border-primary-500"
+                        : "text-black-600"
+                    }`}
                     onClick={() => {
                       setMenu(value.value);
                     }}
@@ -161,7 +166,6 @@ const MyAccount = () => {
               <div className="w-[800px]">
                 <div className="flex items-center gap-4">
                   <div>
-
                     <CircleUserRound className="w-20 h-20 text-[#949494]" />
                     {/* <Image
                       src={"/profile.png"}
@@ -303,26 +307,28 @@ const MyAccount = () => {
                 </div>
                 <div>
                   {(orders || [])?.map((data, ind) => {
-                    return <div
-                      key={ind}
-                      className="grid grid-cols-6 py-4 border-b-2 items-center text-xs pl-2 pr-6"
-                    >
-                      <div>
-                        <Image
-                          src={"/product-order.png"}
-                          alt="product"
-                          width={90}
-                          height={64}
-                        />
+                    return (
+                      <div
+                        key={ind}
+                        className="grid grid-cols-6 py-4 border-b-2 items-center text-xs pl-2 pr-6"
+                      >
+                        <div>
+                          <Image
+                            src={"/product-order.png"}
+                            alt="product"
+                            width={90}
+                            height={64}
+                          />
+                        </div>
+                        <div className="ml-2">{data?.name || ""}</div>
+                        <div>{data?.createdAt}</div>
+                        <div>{data?.total}</div>
+                        <div>{data.status}</div>
+                        <div className="px-6 py-2 bg-[#F7F2ED] w-fit text-primary-500 rounded-md cursor-pointer">
+                          Track
+                        </div>
                       </div>
-                      <div className="ml-2">{data?.name || ""}</div>
-                      <div>{data?.createdAt}</div>
-                      <div>{data?.total}</div>
-                      <div>{data.status}</div>
-                      <div className="px-6 py-2 bg-[#F7F2ED] w-fit text-primary-500 rounded-md cursor-pointer">
-                        Track
-                      </div>
-                    </div>
+                    );
                   })}
                 </div>
               </div>
@@ -495,50 +501,53 @@ const MyAccount = () => {
                   })}
                 </div>
                 <div>
-                  {wishlist?.length > 0 ? wishlist?.map((data, ind) => {
-                    return (
-                      <div
-                        key={ind}
-                        className="grid grid-cols-[10%_18%_18%_18%_18%_18%] py-4 border-b-2 items-center text-[12px]"
-                      >
-                        <div className="w-fit cursor-pointer">
-                          <Image
-                            src={"/close.png"}
-                            alt="product"
-                            width={20}
-                            onClick={() => removeFromWishlist(data?._id)}
-                            height={20}
-                          />
-                        </div>
-                        <div>
-                          <Image
-                            src={data?.images[0] as any}
-                            alt="product"
-                            width={90}
-                            height={64}
-                          />
-                        </div>
-                        <div>{data.product}</div>
-                        <div>{data?.price_range?.min_price}</div>
-                        <div
-                          className={`${data?.quantity
-                            ? "text-[#1A5632]"
-                            : "text-[#E71D35]"
-                            }`}
-                        >
-                          {data?.quantity ? "In Stock" : "Out of Stock"}
-                        </div>
-                        <div>
-                          <Button
-                            text="Add to Cart"
-                            cartGolden={true}
-                            onClick={() => handleCart(data)}
-                            className="!bg-transparent text-primary-500 border border-primary-500 !px-4 text-[12px]"
-                          />
-                        </div>
-                      </div>
-                    );
-                  }) : "No items in wishlist"}
+                  {wishlist?.length > 0
+                    ? wishlist?.map((data, ind) => {
+                        return (
+                          <div
+                            key={ind}
+                            className="grid grid-cols-[10%_18%_18%_18%_18%_18%] py-4 border-b-2 items-center text-[12px]"
+                          >
+                            <div className="w-fit cursor-pointer">
+                              <Image
+                                src={"/close.png"}
+                                alt="product"
+                                width={20}
+                                onClick={() => removeFromWishlist(data?._id)}
+                                height={20}
+                              />
+                            </div>
+                            <div>
+                              <Image
+                                src={data?.images[0] as any}
+                                alt="product"
+                                width={90}
+                                height={64}
+                              />
+                            </div>
+                            <div>{data.product}</div>
+                            <div>{data?.price_range?.min_price}</div>
+                            <div
+                              className={`${
+                                data?.quantity
+                                  ? "text-[#1A5632]"
+                                  : "text-[#E71D35]"
+                              }`}
+                            >
+                              {data?.quantity ? "In Stock" : "Out of Stock"}
+                            </div>
+                            <div>
+                              <Button
+                                text="Add to Cart"
+                                cartGolden={true}
+                                onClick={() => handleCart(data)}
+                                className="!bg-transparent text-primary-500 border border-primary-500 !px-4 text-[12px]"
+                              />
+                            </div>
+                          </div>
+                        );
+                      })
+                    : "No items in wishlist"}
                 </div>
               </>
             )}
