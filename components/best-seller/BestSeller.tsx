@@ -1,17 +1,36 @@
-"use client"
+"use client";
 import Image from "next/image";
 import Button from "../button/Button";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ActionTypes, useCart } from "@/app/cart";
 import { useWishlist } from "@/components/Providers/wish-list-provider";
 import { toast } from "sonner";
 
 const BestSeller = (props: any) => {
-  const data = props.data;
+  // const data = props.data;
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("Best Sellers");
   const { toggleSidebar, cartDispatch } = useCart();
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const getData = async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products`,
+        {
+          next: {
+            revalidate: 3600,
+          },
+        }
+      );
+      const data = await res.json();
+      setData(data);
+    };
+
+    getData();
+    return () => {};
+  }, []);
 
   const [switchTabs, setSwitchTabs] = useState<string>("Best Sellers");
 
@@ -48,9 +67,6 @@ const BestSeller = (props: any) => {
 
   const { addToWishlist } = useWishlist();
 
-
-
-
   return (
     <>
       <div className="text-center  flex gap-6 justify-center text-[#847A73] ">
@@ -58,12 +74,14 @@ const BestSeller = (props: any) => {
           return (
             <div className="relative " key={index}>
               <span
-                className={` pb-2 ${activeTab === value.tabValue ? "active double" : ""
-                  }`}
+                className={` pb-2 ${
+                  activeTab === value.tabValue ? "active double" : ""
+                }`}
               >
                 <span
-                  className={`cursor-pointer pb-3 h-6 hover:border-b-[#b68050] z-10 ${activeTab === value.tabValue ? "active double" : ""
-                    }`}
+                  className={`cursor-pointer pb-3 h-6 hover:border-b-[#b68050] z-10 ${
+                    activeTab === value.tabValue ? "active double" : ""
+                  }`}
                   onClick={(e) => handleSwitch(e, value.tabValue)} // Pass event object and tabValue
                   key={index}
                 >
@@ -100,9 +118,10 @@ const BestSeller = (props: any) => {
                           height={24}
                           className="z-10 relative cursor-pointer"
                           onClick={() => {
-                            addToWishlist(item)
-                            toast.success("Added to wishlist")
-                          }} />
+                            addToWishlist(item);
+                            toast.success("Added to wishlist");
+                          }}
+                        />
                         <Image
                           src={"/svg/eye.svg"}
                           alt={"eye"}
@@ -110,7 +129,7 @@ const BestSeller = (props: any) => {
                           height={24}
                           className="cursor-pointer"
                           onClick={() => {
-                            router.push(`/product-details/${item._id}`)
+                            router.push(`/product-details/${item._id}`);
                           }}
                         />
                       </div>
@@ -163,8 +182,8 @@ const BestSeller = (props: any) => {
                           height={24}
                           className="z-10 relative cursor-pointer"
                           onClick={() => {
-                            addToWishlist(item)
-                            toast.success("Added to wishlist")
+                            addToWishlist(item);
+                            toast.success("Added to wishlist");
                           }}
                         />
                         <Image
@@ -174,8 +193,7 @@ const BestSeller = (props: any) => {
                           height={24}
                           className="cursor-pointer"
                           onClick={() => {
-                            router.push(`/product-details/${item._id}`)
-
+                            router.push(`/product-details/${item._id}`);
                           }}
                         />
                       </div>
@@ -228,8 +246,8 @@ const BestSeller = (props: any) => {
                           height={24}
                           className="z-10 relative cursor-pointer"
                           onClick={() => {
-                            addToWishlist(item)
-                            toast.success("Added to wishlist")
+                            addToWishlist(item);
+                            toast.success("Added to wishlist");
                           }}
                         />
                         <Image
@@ -239,8 +257,7 @@ const BestSeller = (props: any) => {
                           height={24}
                           className="cursor-pointer"
                           onClick={() => {
-                            router.push(`/product-details/${item._id}`)
-
+                            router.push(`/product-details/${item._id}`);
                           }}
                         />
                       </div>
