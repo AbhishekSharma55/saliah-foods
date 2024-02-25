@@ -6,7 +6,6 @@ import Testimonials from "@/components/Landing/Testimonials";
 import DateSyrup from "@/components/Landing/DateSyrup";
 import ProductCollections from "@/components/Landing/ProductCollections";
 export default async function Home() {
-
   return (
     <div className="overflow-hidden">
       <Image
