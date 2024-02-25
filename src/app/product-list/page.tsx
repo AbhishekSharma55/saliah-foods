@@ -3,7 +3,6 @@ import ProductListProvider from "./ProductListProvider";
 import axios from "axios";
 import { getProductsData } from "@/lib/actions/product-actions";
 
-
 const ProductListPage = async () => {
   const data = await getProductsData();
 
