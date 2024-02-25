@@ -16,7 +16,7 @@ const mulish = Mulish({ subsets: ["latin"] });
 const ProductListComponent = ({ products }: { products: ProductSchema[] }) => {
   // const [products, setProducts] = React.useState<any>(null);
   const filteredArray: any[] = [];
-  const [productsImage, setProductsImage] = React.useState<any>(products[0].images || null);
+  const [productsImage, setProductsImage] = React.useState<any>(products[0]?.images || null);
   const searchParams = useSearchParams();
   const [selectedProdcutCat, setSelectedProductCat] = useState("");
 
