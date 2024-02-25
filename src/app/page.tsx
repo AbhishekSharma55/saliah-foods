@@ -6,22 +6,10 @@ import Testimonials from "@/components/Landing/Testimonials";
 import DateSyrup from "@/components/Landing/DateSyrup";
 import ProductCollections from "@/components/Landing/ProductCollections";
 import axios from "axios";
+import { getProductsData } from "@/lib/actions/product-actions";
 
-const getData = async () => {
-  ("use server");
-  try {
-    const { data } = await axios.get(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products`
-    );
-
-    console.log({data} , "app page");
-    return data;
-  } catch (error) {
-    return [];
-  }
-};
 export default async function Home() {
-  const data = await getData();
+  const data = await getProductsData();
   return (
     <div className="overflow-hidden">
       <Image

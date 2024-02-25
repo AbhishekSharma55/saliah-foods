@@ -51,12 +51,14 @@ export const sendOptAction = async (
     await sendService.sendSMS(emailOrPhone, `Your OTP is ${otp}`);
     return { hash, message: "OTP sent successfully", expires };
   } else {
-    await sendService.sendEmailService(
+    sendService.sendEmailService(
       "Email verification",
       emailOrPhone,
       otpNewUserTemplate(otp)
     );
-    return { hash, message: "OTP sent successfully", expires };
+    setTimeout(() => {
+      return { hash, message: "OTP sent successfully", expires };
+    }, 0);
   }
 };
 
