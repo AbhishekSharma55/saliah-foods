@@ -7,15 +7,10 @@ const ProductListPage = async () => {
   );
   const data = await res.json();
 
-  if (!data) {
-    return <div>Something went wrong</div>;
-  } else {
-    return (
-      <>
-        <ProductListProvider data={data} />
-      </>
-    );
+  if (data) {
+    <ProductListProvider data={data} />;
   }
+  return null
 };
 
 export default ProductListPage;
