@@ -18,4 +18,5 @@ const ProductListPage = async () => {
     );
   }
 };
+
 export default ProductListPage;
