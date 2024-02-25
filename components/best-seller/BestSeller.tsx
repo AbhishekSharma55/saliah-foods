@@ -7,7 +7,7 @@ import { ActionTypes, useCart } from "@/app/cart";
 import { useWishlist } from "@/components/Providers/wish-list-provider";
 import { toast } from "sonner";
 
-const BestSeller = (props: any) => {
+const BestSeller = () => {
   // const data = props.data;
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("Best Sellers");
@@ -16,16 +16,20 @@ const BestSeller = (props: any) => {
 
   useEffect(() => {
     const getData = async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products`,
-        {
-          next: {
-            revalidate: 3600,
-          },
-        }
-      );
-      const data = await res.json();
-      setData(data);
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products`,
+          {
+            next: {
+              revalidate: 3600,
+            },
+          }
+        );
+        const data = await res.json();
+        setData(data);
+      } catch (error) {
+        console.log(error)
+      }
     };
 
     getData();
