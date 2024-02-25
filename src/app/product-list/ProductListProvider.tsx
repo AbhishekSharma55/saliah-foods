@@ -5,7 +5,7 @@ import { ProductSchema } from "@/lib/models/products.model";
 import React, { Suspense } from "react";
 
 const ProductListProvider = ({ data }: { data: ProductSchema[] }) => {
-//   if (!data) return <Loading />;
+  if (!data) return <Loading />;
   return (
     <div>
       {/* <Suspense fallback={<Loading />}>
