@@ -6,7 +6,7 @@ import Testimonials from "@/components/Landing/Testimonials";
 import DateSyrup from "@/components/Landing/DateSyrup";
 import ProductCollections from "@/components/Landing/ProductCollections";
 export default async function Home() {
-  const res = await fetch(`/api/products`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products`, {
     next: {
       revalidate: 3600,
     }
