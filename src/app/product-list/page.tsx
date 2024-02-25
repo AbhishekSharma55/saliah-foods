@@ -5,7 +5,9 @@ import axios from "axios";
 const getData = async () => {
   ("use server");
   try {
-    const { data } = await axios.get(`/api/products`);
+    const { data } = await axios.get(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products`
+    );
     return data;
   } catch (error) {
     return [];
