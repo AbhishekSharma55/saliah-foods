@@ -12,7 +12,6 @@ const BestSeller = (props: any) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("Best Sellers");
   const { toggleSidebar, cartDispatch } = useCart();
-
   const [switchTabs, setSwitchTabs] = useState<string>("Best Sellers");
 
   const handleSwitch = (
