@@ -16,7 +16,9 @@ const mulish = Mulish({ subsets: ["latin"] });
 const ProductListComponent = ({ products }: { products: ProductSchema[] }) => {
   // const [products, setProducts] = React.useState<any>(null);
   const filteredArray: any[] = [];
-  const [productsImage, setProductsImage] = React.useState<any>(products[0]?.images || null);
+  const [productsImage, setProductsImage] = React.useState<any>(
+    products[0]?.images || null
+  );
   const searchParams = useSearchParams();
   const [selectedProdcutCat, setSelectedProductCat] = useState("");
 
@@ -28,7 +30,9 @@ const ProductListComponent = ({ products }: { products: ProductSchema[] }) => {
     searchParams.get("category") || "All Categories"
   );
   const [filteredProducts, setFilteredProducts] = useState<ProductSchema[]>([]);
-  const [productFilter, setProductFilter] = useState(true);
+  const [productFilter, setProductFilter] = useState(
+    window.innerWidth <= 765 ? false : true
+  );
 
   const [priceRange, setPriceRange] = useState([0, 500]);
 
@@ -255,10 +259,11 @@ const ProductListComponent = ({ products }: { products: ProductSchema[] }) => {
                 return (
                   <p
                     key={index}
-                    className={`mb-2 font-semibold cursor-pointer ${selectedProdcutCat === value.option
-                      ? "text-primary-500 border-b border-primary-500 w-fit"
-                      : "text-light-500"
-                      }`}
+                    className={`mb-2 font-semibold cursor-pointer ${
+                      selectedProdcutCat === value.option
+                        ? "text-primary-500 border-b border-primary-500 w-fit"
+                        : "text-light-500"
+                    }`}
                     onClick={() => {
                       router.push(`/product-list?category=${value.option}`, {
                         scroll: false,
@@ -269,8 +274,8 @@ const ProductListComponent = ({ products }: { products: ProductSchema[] }) => {
                     {value.option} (
                     {value.option === "All Categories"
                       ? //  ||
-                      // value.option === "Uncategorized"
-                      lengthOfProducts
+                        // value.option === "Uncategorized"
+                        lengthOfProducts
                       : length}
                     )
                   </p>
