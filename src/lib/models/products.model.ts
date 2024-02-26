@@ -1,5 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 
+
+
 // Define product schema interface
 export interface ProductSchema extends Document {
   _id: string;

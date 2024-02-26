@@ -29,7 +29,6 @@ const VerifyOtp = () => {
               />
             </div>
             <div className="flex flex-col gap-4">
-              <h2 className="text-4xl text-primary-500 ">Check your Email</h2>
               <ValidateOtpForm />
 
               <p>

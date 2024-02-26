@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import Image from "next/image";
 import Button from "../button/Button";
 import { useRouter } from "next/navigation";
@@ -6,6 +6,7 @@ import { useState } from "react";
 import { ActionTypes, useCart } from "@/app/cart";
 import { useWishlist } from "@/components/Providers/wish-list-provider";
 import { toast } from "sonner";
+import HeartIcon from "@/components/Icons/HeartIcon";
 
 const BestSeller = (props: any) => {
   const data = props.data;
@@ -45,10 +46,7 @@ const BestSeller = (props: any) => {
     toggleSidebar();
   };
 
-  const { addToWishlist } = useWishlist();
-
-
-
+  const { addToWishlist, removeFromWishlist, wishlist } = useWishlist();
 
   return (
     <>
@@ -57,12 +55,14 @@ const BestSeller = (props: any) => {
           return (
             <div className="relative " key={index}>
               <span
-                className={` pb-2 ${activeTab === value.tabValue ? "active double" : ""
-                  }`}
+                className={` pb-2 ${
+                  activeTab === value.tabValue ? "active double" : ""
+                }`}
               >
                 <span
-                  className={`cursor-pointer pb-3 h-6 hover:border-b-[#b68050] z-10 ${activeTab === value.tabValue ? "active double" : ""
-                    }`}
+                  className={`cursor-pointer pb-3 h-6 hover:border-b-[#b68050] z-10 ${
+                    activeTab === value.tabValue ? "active double" : ""
+                  }`}
                   onClick={(e) => handleSwitch(e, value.tabValue)} // Pass event object and tabValue
                   key={index}
                 >
@@ -92,16 +92,33 @@ const BestSeller = (props: any) => {
                     />
                     <div className="absolute transition-all duration-500 opacity-0 group-hover/add:!opacity-90  w-5/6 md:w-2/3  h-5/6 md:h-w-2/3  bg-primary-500 flex flex-col justify-between items-center py-6 md:py-4 ">
                       <div className="bg-primary-500 text-white px-4 py-2 border border-white flex gap-4 m-auto">
-                        <Image
-                          src={"/svg/heart.svg"}
-                          alt={"like"}
-                          width={24}
-                          height={24}
-                          className="z-10 relative cursor-pointer"
-                          onClick={() => {
-                            addToWishlist(item)
-                            toast.success("Added to wishlist")
-                          }} />
+                        {wishlist?.find(
+                          (wish: any) => wish?._id === item?._id
+                        ) ? (
+                          <span
+                            onClick={() => {
+                              removeFromWishlist(item?._id);
+                              toast.error("Removed from wishlist");
+                            }}
+                            title="Remove to wishlist"
+                            className="text-white cursor-pointer text-xl"
+                          >
+                            <HeartIcon />
+                          </span>
+                        ) : (
+                          <Image
+                            src={"/svg/heart.svg"}
+                            alt={"like"}
+                            width={24}
+                            height={24}
+                            title="Add to wishlist"
+                            className="z-10 relative cursor-pointer"
+                            onClick={() => {
+                              addToWishlist(item);
+                              toast.success("Added to wishlist");
+                            }}
+                          />
+                        )}
                         <Image
                           src={"/svg/eye.svg"}
                           alt={"eye"}
@@ -109,7 +126,7 @@ const BestSeller = (props: any) => {
                           height={24}
                           className="cursor-pointer"
                           onClick={() => {
-                            router.push(`/product-details/${item._id}`)
+                            router.push(`/product-details/${item._id}`);
                           }}
                         />
                       </div>
@@ -162,8 +179,8 @@ const BestSeller = (props: any) => {
                           height={24}
                           className="z-10 relative cursor-pointer"
                           onClick={() => {
-                            addToWishlist(item)
-                            toast.success("Added to wishlist")
+                            addToWishlist(item);
+                            toast.success("Added to wishlist");
                           }}
                         />
                         <Image
@@ -173,8 +190,7 @@ const BestSeller = (props: any) => {
                           height={24}
                           className="cursor-pointer"
                           onClick={() => {
-                            router.push(`/product-details/${item._id}`)
-
+                            router.push(`/product-details/${item._id}`);
                           }}
                         />
                       </div>
@@ -227,8 +243,8 @@ const BestSeller = (props: any) => {
                           height={24}
                           className="z-10 relative cursor-pointer"
                           onClick={() => {
-                            addToWishlist(item)
-                            toast.success("Added to wishlist")
+                            addToWishlist(item);
+                            toast.success("Added to wishlist");
                           }}
                         />
                         <Image
@@ -238,8 +254,7 @@ const BestSeller = (props: any) => {
                           height={24}
                           className="cursor-pointer"
                           onClick={() => {
-                            router.push(`/product-details/${item._id}`)
-
+                            router.push(`/product-details/${item._id}`);
                           }}
                         />
                       </div>

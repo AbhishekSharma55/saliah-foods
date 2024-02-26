@@ -26,6 +26,7 @@
     "embla-carousel-react": "^8.0.0-rc22",
     "embla-carousel-reactive-utils": "^8.0.0",
     "install": "^0.13.0",
+    "jose": "^5.2.2",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.331.0",
     "moment": "^2.30.1",
@@ -66,5 +67,3 @@
     "typescript": "^5"
   }
 }
-
-

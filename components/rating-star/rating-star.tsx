@@ -1,17 +1,18 @@
 import Image from "next/image";
 
-const RatingStar = () => {
+const RatingStar = ({ rating = 0, onClick }: { onClick?: () => void , rating?:number }) => {
   return (
     <>
       <div className="flex">
-        {starCollection?.map((value, index) => {
+        {Array.from({ length: rating })?.map((value, index) => {
           return (
             <Image
-              src={value.imgUrl}
+              src={"/svg/Star.svg"}
               alt="star"
               width={18}
               height={18}
               key={index}
+              onClick={onClick}
             />
           );
         })}

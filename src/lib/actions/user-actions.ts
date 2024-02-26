@@ -56,9 +56,7 @@ export const sendOptAction = async (
       emailOrPhone,
       otpNewUserTemplate(otp)
     );
-    setTimeout(() => {
-      return { hash, message: "OTP sent successfully", expires };
-    }, 0);
+    return { hash, message: "OTP sent successfully", expires };
   }
 };
 

@@ -48,7 +48,7 @@ const Footer = () => {
               (Taluk)Krishnapuram, Dharmapuri, 635202,Tamilnadu, India.
             </p>
             <div className="text-primary-200">
-              <Link href={"#"}>consumer@saliahdates.com</Link>
+              <Link href={"#"}>consumer@saliahdates.com </Link>
               <Link href={"#"}>1 (800) 975-5304</Link>
             </div>
             <div className="text-white hidden md:flex  md:flex-row gap-6 w-fit ">

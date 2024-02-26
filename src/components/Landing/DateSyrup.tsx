@@ -75,14 +75,13 @@ const DateSyrup = () => {
       //   Autoplay({
       //     delay: 5000,
       //   }),
-
       // ]} 
         className="w-full bg-[#EBDFD5] ">
-        <CarouselContent className="max-h-auto md:max-h-[61rem]">
+        <CarouselContent className="max-h-[100rem] md:max-h-[61rem]">
           {productsArr.map((item, index) => (
             <CarouselItem key={index}>
               <div className=" bg-[url('/net.png')]">
-                <h1 className="block  text-primary-500 text-4xl justify-center  text-center md:py-10 pt-10 pb-0 tracking-wide bg-cover">
+                <h1 className="block text-primary-500 text-4xl justify-center  text-center md:py-10 pt-10 pb-0 tracking-wide bg-cover">
                   {item?.product}
                 </h1>
                 <div className="flex flex-col-reverse md:items-start md:flex md:grid-cols-3 md:gap-20 items-center md:py-20 py-8 p-6 md:px-20  bg-contain  md:flex-row-reverse">
