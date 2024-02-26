@@ -51,7 +51,7 @@ export const sendOptAction = async (
     await sendService.sendSMS(emailOrPhone, `Your OTP is ${otp}`);
     return { hash, message: "OTP sent successfully", expires };
   } else {
-    sendService.sendEmailService(
+    await sendService.sendEmailService(
       "Email verification",
       emailOrPhone,
       otpNewUserTemplate(otp)

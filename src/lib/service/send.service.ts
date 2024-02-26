@@ -11,15 +11,29 @@ class SendService {
       html: html,
     };
 
-    return transporter.sendMail(mailOptions, function (error: any, info) {
-      if (error) {
-        console.log("Email Send Error ", error);
-        return false;
-      } else {
-        // console.log("Email Send Info ", info);
-        return true;
-      }
-    });
+    const send = await new Promise((resolve, reject) => {
+      transporter.sendMail(mailOptions, function (error: any, info: any) {
+        if (error) {
+          console.log("Email Send Error ", error);
+          reject(false);
+        } else {
+          console.log("Email Send Info ", info);
+          resolve(true);
+        }
+      });
+    })
+   
+
+    return send;
+    // return transporter.sendMail(mailOptions, function (error: any, info) {
+    //   if (error) {
+    //     console.log("Email Send Error ", error);
+    //     return false;
+    //   } else {
+    //     // console.log("Email Send Info ", info);
+    //     return true;
+    //   }
+    // });
   }
 
   async sendSMS(to: string, message: string): Promise<boolean> {
@@ -33,7 +47,7 @@ class SendService {
         from: process.env.TWILIO_FROM_NUMBER,
         body: message,
         to: dataFormateService.normalizePhoneNumber(to),
-      }
+      };
 
       return client.messages
         .create(formateData)
