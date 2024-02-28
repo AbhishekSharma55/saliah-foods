@@ -60,14 +60,15 @@ const ValidateOtpForm = () => {
       const data = await sendOptAction(toUser, name, type);
       if (data?.hash) {
         router.replace(
-          `/verify-otp?toUser=${toUser}&name=${name}&message=${data?.message}&hash=${data?.hash}.${data?.expires}`
+          `/verify-otp?toUser=${toUser}&name=${name}&message=${data?.message}&hash=${data?.hash}.${data?.expires}type=${type}`
         );
         setMessage(`Otp has been successfully sent to your ${type}`);
       } else if (data?.error) {
         setError(data?.error);
       }
     } catch (error: any) {
-      setError(error?.message);
+      console.log(error);
+      setError("Failed to send the otp");
     } finally {
       setIsLoading(false);
     }
@@ -78,17 +79,7 @@ const ValidateOtpForm = () => {
       <FormHeading />
       <div className="flex gap-2 w-full justify-start">
         <form onSubmit={onSubmit} className="space-y-6">
-          {/* <div className="flex gap-x-4">
-            <OtpInput
-              value={otp}
-              onChange={setOtp}
-              numInputs={4}
-              inputStyle={
-                " !w-16 !h-16 sm:!w-20 sm:!h-20 mx-[6px] text-2xl bg-white flex items-center justify-center rounded-md border border-primary-500 text-primary-500 font-semibold text-3xl lg:text-4xl"
-              }
-              renderInput={(props) => <input required {...props} />}
-            />
-          </div> */}
+ 
           <OtpInputForm otp={otp} setOtp={setOtp} />
 
           {(error || message) && (
@@ -117,7 +108,7 @@ const ValidateOtpForm = () => {
 
           <div className="flex gap-2 items-center !-mt-[0.25rem]">
             <p className="text-light-500 whitespace-nowrap">
-              Didn’t receive the email?
+              Didn’t receive the otp?
             </p>
             <Button
               disabled={isLoading}

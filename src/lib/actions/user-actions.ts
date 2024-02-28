@@ -47,6 +47,7 @@ export const sendOptAction = async (
   const data = `${emailOrPhone}.${name}.${otp}.${expires}`;
   const hash = await hashService.hashOtp(data);
 
+  console.log({emailOrPhone});
   if (type === "phone") {
     await sendService.sendSMS(emailOrPhone, `Your OTP is ${otp}`);
     return { hash, message: "OTP sent successfully", expires };
@@ -68,7 +69,7 @@ export const verifyOtpAction = async (
   name: string
 ) => {
   if (!otp || !hash || !emailOrPhone) {
-    return { message: "All fields are required!" };
+    return { error: "All fields are required!" };
   }
   const [hashedOtp, expires] = hash.split(".");
   if (Date.now() > +expires) {

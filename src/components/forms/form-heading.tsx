@@ -19,7 +19,7 @@ const FormHeading = () => {
 
   return (
     isMounted && (
-      <h2 className="text-4xl text-primary-500 "> Check your {type}</h2>
+      <h2  className="text-4xl text-primary-500 "> Check your {type}</h2>
     )
   );
 };

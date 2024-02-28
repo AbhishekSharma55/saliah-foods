@@ -20,9 +20,17 @@ function calculateRemainingTime(expires: number) {
 
 // Next.js component
 function RemainingTime({ expires }: { expires: number }) {
+  const [isMounted, setIsMounted] = useState(false)
   const [remainingTime, setRemainingTime] = useState(
     calculateRemainingTime(expires)
   );
+
+
+  useEffect(() => {
+    setIsMounted(true)
+    return () => {
+    }
+  }, [])
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -38,6 +46,8 @@ function RemainingTime({ expires }: { expires: number }) {
     // Cleanup function to clear interval on unmount or expiration
     return () => clearInterval(intervalId);
   }, [expires]);
+
+  if(!isMounted) return null
 
   return (
     <>

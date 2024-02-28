@@ -13,7 +13,7 @@ const VerifyOtp = () => {
     <>
       <div
         className={
-          " bg-[url('/net.png')] gap-2  w-full px-4 lg:px-0 lg:pl-52 xl:pl-64 h-[calc(100vh-80px)] flex justify-center lg:justify-between items-center"
+          " bg-[url('/net.png')] overflow-y-auto no-scrollbar gap-2  w-full px-4 lg:px-0 lg:pl-52 xl:pl-64 h-[calc(100vh-80px)] flex justify-center lg:justify-between items-center"
         }
       >
         <div className="flex justify-center -mt-16">
@@ -30,7 +30,6 @@ const VerifyOtp = () => {
             </div>
             <div className="flex flex-col gap-4">
               <ValidateOtpForm />
-
               <p>
                 <span>Back to </span>
                 <Link
@@ -44,13 +43,22 @@ const VerifyOtp = () => {
           </div>
         </div>
 
-        <div className=" hidden self-start lg:block overflow-y-hidden max-h-full">
+        {/* <div className=" hidden self-start lg:block overflow-y-hidden ">
           <Image
             src={"/login.png"}
             alt="dates"
             width={750}
             height={700}
-            className="w-fit "
+            className="w-fit bg-cover"
+          />
+        </div> */}
+        <div className="hidden md:block">
+          <Image
+            src={"/login.png"}
+            alt="dates"
+            width={850}
+            height={800}
+            className="md:w-fit mx-auto md:mx-0 w-[80%]"
           />
         </div>
       </div>
