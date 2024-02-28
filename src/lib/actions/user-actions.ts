@@ -47,7 +47,6 @@ export const sendOptAction = async (
   const data = `${emailOrPhone}.${name}.${otp}.${expires}`;
   const hash = await hashService.hashOtp(data);
 
-  console.log({emailOrPhone});
   if (type === "phone") {
     await sendService.sendSMS(emailOrPhone, `Your OTP is ${otp}`);
     return { hash, message: "OTP sent successfully", expires };
@@ -88,7 +87,18 @@ export const verifyOtpAction = async (
       phone: isNaN(parseInt(emailOrPhone)) ? undefined : parseInt(emailOrPhone),
       name: name,
     };
+    if (!formateData.email) {
+      delete formateData.email;
+    } else if (!formateData.phone) {
+      delete formateData.phone;
+    }
+    const isUserExist = await UserModel.findOne({
+      $or: [{ email: emailOrPhone }, { phone: emailOrPhone }],
+    });
 
+    if (isUserExist) {
+      return { error: "User already exists!" };
+    }
     const user: UserSchema = await UserModel.create(formateData);
     if (user) {
       return { message: "You Are Verified", user };

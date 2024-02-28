@@ -44,7 +44,7 @@ const ValidateOtpForm = () => {
         router.replace("/verified");
       }
     } catch (error: any) {
-      setError(error?.message);
+      setError("Failed to verify the otp");
     } finally {
       setIsLoading(false);
     }
