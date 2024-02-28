@@ -6,5 +6,6 @@ import { Product, ProductSchema } from "../models/products.model";
 export const getProductsData = async (): Promise<ProductSchema[] | any[]> => {
   await connectToDB();
   const data = await Product.find({}).lean();
-  return data || [];
+  
+  return JSON.parse(JSON.stringify(data)) || [];
 };

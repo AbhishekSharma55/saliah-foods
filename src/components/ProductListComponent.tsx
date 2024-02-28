@@ -7,20 +7,28 @@ import Card from "@/app/products-card";
 import { useRouter, useSearchParams } from "next/navigation";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Mulish } from "next/font/google";
-import DropDownField from "../../components/dropdown/dropdown";
+import { useMediaQuery } from "usehooks-ts";
 import { ProductSchema } from "@/lib/models/products.model";
 const mulish = Mulish({ subsets: ["latin"] });
 
+enum SortType {
+  Default = "Default",
+  PriceLowToHigh = "Price - Low to High",
+  PriceHighToLow = "Price - High to Low",
+}
 const ProductListComponent = ({ products }: { products: ProductSchema[] }) => {
-  // const [products, setProducts] = React.useState<any>(null);
-  const filteredArray: any[] = [];
   const [productsImage, setProductsImage] = React.useState<any>(
     products[0]?.images || null
   );
   const searchParams = useSearchParams();
-  const [selectedProdcutCat, setSelectedProductCat] = useState("");
 
   React.useEffect(() => {
     // setProducts(Products);
@@ -30,22 +38,35 @@ const ProductListComponent = ({ products }: { products: ProductSchema[] }) => {
     searchParams.get("category") || "All Categories"
   );
   const [filteredProducts, setFilteredProducts] = useState<ProductSchema[]>([]);
-  const [productFilter, setProductFilter] = useState(
-    window.innerWidth <= 765 ? false : true
-  );
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const [productFilter, setProductFilter] = useState(false);
 
   const [priceRange, setPriceRange] = useState([0, 500]);
 
+  useEffect(() => {
+    if (window.innerWidth >= 768) {
+      setProductFilter(true);
+    }
+
+    return () => {};
+  }, []);
+
+  // Define a variable to hold the timer ID
+  let debounceTimer: ReturnType<typeof setTimeout>;
+  // Define your debounced handler function
   const handlePriceChange = (e: number[]) => {
-    setPriceRange(e);
+    // Clear the previous timer
+    clearTimeout(debounceTimer);
+    // Set a new timer to update the state after 300ms of inactivity
+    debounceTimer = setTimeout(() => {
+      setPriceRange([e[0], e[1]]);
+    }, 300);
   };
-  const [sortType, setSortType] = useState("");
+
+  const [sortType, setSortType] = useState<SortType>(SortType.Default);
 
   const handleFilterSelected = (e: string) => {
     setSelected(e);
-  };
-  const handleSorting = (e: string) => {
-    setSortType(e);
   };
 
   useEffect(() => {
@@ -53,70 +74,71 @@ const ProductListComponent = ({ products }: { products: ProductSchema[] }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [products]);
 
-  const filterProductsByCategory = (
-    selected: any,
-    sortType: any,
-    priceRange: any
-  ) => {
-    if (selected) {
-      setSelected("");
-      setSelectedProductCat(selected);
-      const filtered = products?.filter((item: any) =>
-        selected === "All Categories" ? item : item.category?.includes(selected)
-      );
-      setFilteredProducts(filtered);
+  const minMaxPrice = (
+    minMax: "min_price" | "max_price",
+    productData: ProductSchema
+  ): number => {
+    return (
+      (productData?.varient &&
+        productData?.varient[0] &&
+        productData?.varient[0]?.price_range?.[minMax]) ||
+      productData?.price_range?.[minMax]
+    );
+  };
 
-      setPriceRange([0, 0]);
-    } else if (priceRange[1]) {
-      const priceRangefiltered = products?.filter((item: any) =>
-        item?.varient[0]?.price_range?.min_price >= priceRange[1]
-          ? item?.varient?.price_range?.min_price
-          : "No"
-      );
-      setFilteredProducts(priceRangefiltered);
-    } else if (sortType === "Price - Low to High") {
-      setSortType("");
-      const filtered = filteredProducts?.sort((a: any, b: any) => {
-        const aMinPrice = a.varient?.map(
-          (item: any) => item.price_range.min_price
-        );
-        const bMinPrice = b.varient?.map(
-          (item: any) => item.price_range.min_price
-        );
+  function filterProductsByPriceRange(
+    minPrice: number,
+    maxPrice: number,
+    products: ProductSchema[]
+  ): ProductSchema[] {
+    return products.filter((product) => {
+      // const { price_range } = product;
+      const minimumPrice = minMaxPrice("min_price", product);
+      const maximumPrice = minMaxPrice("max_price", product);
+      return +minimumPrice >= minPrice && +maximumPrice <= maxPrice;
+    });
+  }
 
-        if (!aMinPrice || !bMinPrice) {
-          return 0;
-        }
-
-        const numericAMinPrice = parseFloat(aMinPrice);
-        const numericBMinPrice = parseFloat(bMinPrice);
-
-        return numericAMinPrice - numericBMinPrice;
+  function sortProducts(
+    sortType: SortType,
+    products: ProductSchema[]
+  ): ProductSchema[] {
+    if (sortType === SortType.Default) {
+      // No sorting needed, return products as is
+      return products;
+    } else if (sortType === SortType.PriceLowToHigh) {
+      // Sort products by price in ascending order
+      return products.slice().sort((a, b) => {
+        const minimumAPrice = minMaxPrice("min_price", a);
+        const minimumBPrice = minMaxPrice("min_price", b);
+        return minimumAPrice - minimumBPrice;
       });
-
-      setFilteredProducts(filtered);
-    } else if (sortType === "Price - High to Low") {
-      setSortType("");
-      const filtered = filteredProducts?.sort((a: any, b: any) => {
-        const aMinPrice = b.varient?.map(
-          (item: any) => item.price_range.min_price
-        );
-        const bMinPrice = a.varient?.map(
-          (item: any) => item.price_range.min_price
-        );
-
-        if (!aMinPrice || !bMinPrice) {
-          return 0;
-        }
-
-        const numericAMinPrice = parseFloat(aMinPrice);
-        const numericBMinPrice = parseFloat(bMinPrice);
-
-        return numericAMinPrice - numericBMinPrice;
+    } else if (sortType === SortType.PriceHighToLow) {
+      return products.slice().sort((a, b) => {
+        const minimumAPrice = minMaxPrice("min_price", a);
+        const minimumBPrice = minMaxPrice("min_price", b);
+        return minimumBPrice - minimumAPrice;
       });
-
-      setFilteredProducts(filtered);
     }
+    return products; // Default: return products as is
+  }
+
+  const filterProductsByCategory = (
+    selected: string,
+    sortType: SortType,
+    priceRange: number[]
+  ) => {
+    let filteredProducts = products;
+    filteredProducts = products?.filter((item: ProductSchema) =>
+      selected === "All Categories" ? item : item.category?.includes(selected)
+    );
+    filteredProducts = filterProductsByPriceRange(
+      priceRange[0],
+      priceRange[1],
+      filteredProducts
+    );
+    filteredProducts = sortProducts(sortType, filteredProducts);
+    setFilteredProducts(filteredProducts);
   };
 
   const filterOptions = [
@@ -166,7 +188,6 @@ const ProductListComponent = ({ products }: { products: ProductSchema[] }) => {
     GiftHampers: 0,
     Honey: 0,
     MiniBytes: 0,
-    // Uncategorized: 0,
   });
 
   const filterTotalItems = () => {
@@ -239,7 +260,11 @@ const ProductListComponent = ({ products }: { products: ProductSchema[] }) => {
         className={`flex  gap-4 px-5 md:px-20 py-8 z-50 bg-[url('/net.png')] bg-contain ${mulish.className}`}
       >
         {productFilter ? (
-          <div className="fixed md:sticky top-0 left-0 h-screen md:h-fit w-[80vw] md:w-[288px] bg-primary-100 px-4 rounded-md font-sans bg-white z-[2]">
+          <div
+            className={
+              "fixed md:sticky top-0 left-0 h-screen md:h-fit w-[80vw] md:w-[288px] bg-primary-100 px-4 rounded-md font-sans bg-white z-[2]"
+            }
+          >
             <div className="flex justify-between py-4 pb-6">
               <h3 className="text-xl">Filter </h3>
               <Image
@@ -255,12 +280,11 @@ const ProductListComponent = ({ products }: { products: ProductSchema[] }) => {
               <h3 className="font-semibold mb-4">CATEGORIES</h3>
               {filterOptions?.map((value, index) => {
                 const length = lengths[value.option];
-
                 return (
                   <p
                     key={index}
                     className={`mb-2 font-semibold cursor-pointer ${
-                      selectedProdcutCat === value.option
+                      selected === value.option
                         ? "text-primary-500 border-b border-primary-500 w-fit"
                         : "text-light-500"
                     }`}
@@ -268,6 +292,9 @@ const ProductListComponent = ({ products }: { products: ProductSchema[] }) => {
                       router.push(`/product-list?category=${value.option}`, {
                         scroll: false,
                       });
+                      if (isMobile) {
+                        setProductFilter(!productFilter);
+                      }
                       handleFilterSelected(value.option);
                     }}
                   >
@@ -289,14 +316,6 @@ const ProductListComponent = ({ products }: { products: ProductSchema[] }) => {
                   <label className="text-lg font-bold mb-2 block">
                     Price Range:
                   </label>
-                  {/* <input
-                      type="range"
-                      min="0"
-                      max="500"
-                      value={priceRange[1]}
-                      onChange={handlePriceChange}
-                      className="w-full"
-                    /> */}
                   <div className="h-4">
                     <Slider
                       className="h-4"
@@ -334,14 +353,23 @@ const ProductListComponent = ({ products }: { products: ProductSchema[] }) => {
           </div>
         ) : null}
         <div className="w-full">
-          <div className=" md:mb-10 mb-4 md:mb-0 md:flex md:flex-row flex-col justify-between mr-8">
+          <div className=" md:mb-10 mb-4  md:flex md:flex-row flex-col justify-between mr-8">
             <div className=" relative z-[1]">
-              <DropDownField
-                onChange={(e: any) => handleSorting(e.target.value)}
-                className="w-[200px]"
-                collection={sortbyCollection}
-                label="Sort by:"
-              />
+              <div className="flex items-center gap-2">
+                <span className="text-light-500">Sort by:</span>
+                <Select onValueChange={(e: SortType) => setSortType(e)}>
+                  <SelectTrigger className="w-[200px] bg-transparent border border-[#C2BDB9] text-base font-normal">
+                    <SelectValue placeholder="Default" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(SortType).map((key) => (
+                      <SelectItem key={key} value={key}>
+                        {key}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div className="md:flex gap-2 hidden  text-light-500 my-4 md:my-0 items-center">
               <div className="flex-none">
@@ -357,8 +385,6 @@ const ProductListComponent = ({ products }: { products: ProductSchema[] }) => {
               >
                 Categories
               </span>
-              {/* <span>&gt;</span> */}
-              {/* <span className="text-success-green-900">Categories</span> */}
             </div>
           </div>
           <div className="flex md:hidden justify-between border-b-2 border-[#E1CBB7] pb-6">
@@ -411,7 +437,7 @@ const ProductListComponent = ({ products }: { products: ProductSchema[] }) => {
 };
 export default ProductListComponent;
 
-const sortbyCollection = [
+const sortByCollection = [
   {
     option: "Default",
   },

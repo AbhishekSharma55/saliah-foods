@@ -15,8 +15,8 @@ export interface UserSchema extends Document {
 }
 
 const userSchemaFields = {
-  email: { type: String, required: false },
-  phone: { type: String, required: false },
+  email: { type: String },
+  phone: { type: String },
   name: { type: String },
   role: {
     type: String,
