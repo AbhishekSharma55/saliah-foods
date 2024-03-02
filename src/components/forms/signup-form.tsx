@@ -16,12 +16,12 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { userFormSchema } from "@/lib/schemas/user-schema";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { AlertTriangle } from "lucide-react";
 import { sendOptAction } from "@/lib/actions/user-actions";
+import Link from "next/link";
 
 export default function SignUpForm() {
   const router = useRouter();
@@ -74,96 +74,113 @@ export default function SignUpForm() {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="name"
-          disabled={isLoading}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-black-800 ">Full Name </FormLabel>
-              <FormControl>
-                <Input placeholder="Your Name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {type === "email" ? (
-          <FormField
-            control={form.control}
-            name="email"
-            disabled={isLoading}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-black-800 ">Email </FormLabel>
-                <FormControl>
-                  <Input placeholder="Your Email" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ) : (
-          <FormField
-            control={form.control}
-            name="phone"
-            disabled={isLoading}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-black-800 ">Phone </FormLabel>
-                <FormControl>
-                  <Input placeholder="Your Phone" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
-        <FormField
-          control={form.control}
-          name="agree"
-          disabled={isLoading}
-          render={({ field }) => (
-            <FormItem className="flex items-center justify-center gap-x-2 space-y-0">
-              <FormControl>
-                <Checkbox
-                  checked={field.value as boolean}
-                  onCheckedChange={field.onChange}
+    <>
+      <div className="md:w-[375px] md:m-auto grid gap-4 p-4 md:p-0">
+        <h2 className="text-4xl text-primary-500">Sign Up</h2>
+        <p className="text-light-500">Create an Account</p>
+        <div className="grid">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <FormField
+                control={form.control}
+                name="name"
+                disabled={isLoading}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-black-800 ">
+                      Full Name{" "}
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="Your Name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {type === "email" ? (
+                <FormField
+                  control={form.control}
+                  name="email"
+                  disabled={isLoading}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-black-800 ">Email </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Your Email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </FormControl>
-              <FormLabel className="text-sm m-0 text-light-500">
-                I agree with Privacy Policy and Terms and Conditions
-              </FormLabel>
-            </FormItem>
-          )}
-        />
+              ) : (
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  disabled={isLoading}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-black-800 ">Phone </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Your Phone" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
-        {error && (
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Error!</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        <Button disabled={isLoading} type="submit" className="w-full">
-          SIGN UP
-        </Button>
-      </form>
+              <FormField
+                control={form.control}
+                name="agree"
+                disabled={isLoading}
+                render={({ field }) => (
+                  <FormItem className="flex items-center justify-center gap-x-2 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value as boolean}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel className="text-sm m-0 text-light-500">
+                      I agree with Privacy Policy and Terms and Conditions
+                    </FormLabel>
+                  </FormItem>
+                )}
+              />
 
-      <div className="mt-2">
-        <span className="text-light-500">
-          Instead of use
-          <span
-            onClick={() => changeForm()}
-            className="text-primary-500 uppercase font-semibold ml-2 cursor-pointer"
-          >
-            {type === "email" ? "phone" : "email"}?
-          </span>{" "}
-        </span>
+              {error && (
+                <Alert variant="destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Error!</AlertTitle>
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              <Button disabled={isLoading} type="submit" className="w-full">
+                SIGN UP
+              </Button>
+            </form>
+
+            <div className="mt-2">
+              <span className="text-light-500">
+                Use
+                <span
+                  onClick={changeForm}
+                  className="text-primary-500 uppercase font-semibold ml-2 cursor-pointer"
+                >
+                  {type === "email" ? "Phone" : "Email"}
+                </span>{" "}
+                instead?
+              </span>
+            </div>
+          </Form>
+          <div>
+            <span className="text-light-500">Already have an Account?</span>
+            <span className="text-primary-500 font-semibold ml-2 cursor-pointer">
+              <Link href="/login"> Log In</Link>
+            </span>
+          </div>
+        </div>
       </div>
-    </Form>
+    </>
   );
 }

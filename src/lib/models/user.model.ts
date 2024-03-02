@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, SchemaDefinition } from "mongoose";
+import mongoose, { Document, Schema} from "mongoose";
 
 // Define role enum
 export enum UserRole {

@@ -11,6 +11,16 @@ import React from "react";
 import { useUser } from "@/components/Providers/user-provider";
 import { logoutAction } from "@/lib/actions/user-actions";
 import { Mulish } from "next/font/google";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
+
 const mulish = Mulish({ subsets: ["latin"] });
 const Header = () => {
   const { isSidebarOpen, toggleSidebar } = useCart();
@@ -69,11 +79,6 @@ const Header = () => {
     toggleSidebar();
   };
 
-  function redirect() {
-    router.push("/login");
-    setMenu(false);
-  }
-
   return (
     <>
       <div
@@ -92,7 +97,6 @@ const Header = () => {
           >
             SHOP
           </div>
-
         </div>
         {menu ? (
           <div className="sidebar px-4 py-5  bg-[#F7F2ED] block md:hidden w-[70vw] h-screen fixed top-0 left-0 z-10">
@@ -113,7 +117,7 @@ const Header = () => {
                   }}
                 >
                   <span className="font-semibold text-[1.25rem]  ">
-                 ``   {user.name}
+                    `` {user.name}
                   </span>
                   <span>
                     <Image
@@ -149,7 +153,7 @@ const Header = () => {
                     router.push("/product-list"), setMenu(!menu);
                   }}
                 >
-                  SHOP{" "}
+                  SHOP
                 </div>
                 <div
                   className="cursor-pointer"
@@ -181,31 +185,122 @@ const Header = () => {
             onClick={() => router.push("/")}
           />
         </div>
-        <div className="flex gap-8 text-sm items-center">
+        <div className="flex gap-8 text-sm items-center user-container">
           {user ? (
-            <div>
-              {/* <div className="text-primary-400 text-[13px]">Hi, Alex Carder</div> */}
-              <div
-                className="gap-2 items-center cursor-pointer hidden md:flex"
-                onClick={() => router.push("/account-info")}
-              >
+            // <div>
+            //   <div
+            //     className="gap-2 items-center cursor-pointer hidden md:flex"
+            //     onClick={() => router.push("/account-info")}
+            //   >
+            // <span className="font-semibold text-[1.25rem] ">
+            //   {user.name}
+            //   {/* Alex */}
+            // </span>
+            //     <span>
+            //       <Image
+            //         src={"/svg/dropdown.svg"}
+            //         alt="dropdown"
+            //         width={16}
+            //         height={16}
+            //       />
+            //     </span>
+            //   </div>
+            // </div>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center">
                 <span className="font-semibold text-[1.25rem] ">
                   {user.name}
-                  {/* Alex */}
                 </span>
                 <span>
-                  <Image
-                    src={"/svg/dropdown.svg"}
-                    alt="dropdown"
-                    width={16}
-                    height={16}
-                  />
+                  <ChevronDown />
                 </span>
-              </div>
-            </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                data-profile-dropdown
+                className="bg-[#F0E5DB] rounded-xl overflow-y-visible px-4"
+              >
+                <DropdownMenuLabel className="bg-[#F0E5DB] rounded-sm absolute -top-2 w-4 h-4 rotate-45 right-4"></DropdownMenuLabel>
+                <DropdownMenuItem
+                  asChild
+                  className="pl-2 pr-10 py-2 cursor-pointer text-lg text-[#B68050] hover:!text-[#B68050] hover:!bg-[#e3c8a680] space-x-2"
+                >
+                  <Link href="/account-info?tab=Profile">
+                    <Image
+                      src="/svg/image_user.svg"
+                      alt="User"
+                      width={20}
+                      height={20}
+                    />
+                    <span>Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-[#B68050]" />
+
+                <DropdownMenuItem
+                  asChild
+                  className="pl-2 pr-10 py-2 cursor-pointer text-lg text-[#B68050] hover:!text-[#B68050] hover:!bg-[#e3c8a680] space-x-2"
+                >
+                  <Link href="/account-info?tab=Orders">
+                    <Image
+                      src="/svg/image_order.svg"
+                      alt="User"
+                      width={20}
+                      height={20}
+                    />
+                    <span>Orders</span>
+                  </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  asChild
+                  className="pl-2 pr-10 py-2 cursor-pointer text-lg text-[#B68050] hover:!text-[#B68050] hover:!bg-[#e3c8a680] space-x-2"
+                >
+                  <Link href="/account-info?tab=Wishlist">
+                    <Image
+                      src="/svg/image_wishlist.svg"
+                      alt="User"
+                      width={20}
+                      height={20}
+                    />
+                    <span>Wishlists</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-[#B68050]" />
+
+                <DropdownMenuItem
+                  asChild
+                  className="pl-2 pr-10 py-2 cursor-pointer text-lg text-[#B68050] hover:!text-[#B68050] hover:!bg-[#e3c8a680] space-x-2"
+                >
+                  <Link href="/account-info?tab=Account details">
+                    <Image
+                      src="/svg/image_settings.svg"
+                      alt="User"
+                      width={20}
+                      height={20}
+                    />
+                    <span>Account Settings</span>
+                  </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  asChild
+                  className="pl-2 pr-10 py-2 cursor-pointer text-lg text-[#B68050] hover:!text-[#B68050] hover:!bg-[#e3c8a680] space-x-2"
+                >
+                  <Link href="/account-info?tab=Logout">
+                    <Image
+                      src="/svg/image_logout.svg"
+                      alt="User"
+                      width={20}
+                      height={20}
+                    />
+                    <span>Log out</span>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <div>
-              {/* <div className="text-primary-400 text-[13px]">Hi, Alex Carder</div> */}
               <div
                 className="gap-2 items-center cursor-pointer hidden md:flex"
                 onClick={() => router.push("/login")}
@@ -252,70 +347,69 @@ const Header = () => {
             <div className="grid gap-4 overflow-auto h-[65vh]">
               {cartState?.cartItems?.length > 0
                 ? cartState?.cartItems?.map((item: any, index: number) => {
-                  return (
-                    <React.Fragment key={index}>
-                      <div
-                        className="bg-[#1A5632] rounded-md p-4 flex items-center gap-4"
-                        key={index}
-                      >
-                        <div>
-                          <Image
-                            src={item?.product?.image}
-                            alt="dates"
-                            width={120}
-                            height={120}
-                          />
-                        </div>
-                        <div className="w-full">
-                          <h3 className="text-primary-500 text-[18px]">
-                            {item?.product?.name}
-                          </h3>
-                          <div className="flex items-center mt-[2px] mb-2 justify-between">
-                            <div className="text-white text-sm">
-                              <span>{item?.product?.unit} x</span>
-                              <span>{item?.product?.price}</span>
-                            </div>
-                            <div className="w-fit text-white p-[2px] rounded-full border cursor-pointer">
-                              {/* <Image
+                    return (
+                      <React.Fragment key={index}>
+                        <div
+                          className="bg-[#1A5632] rounded-md p-4 flex items-center gap-4"
+                          key={index}
+                        >
+                          <div>
+                            <Image
+                              src={item?.product?.image}
+                              alt="dates"
+                              width={120}
+                              height={120}
+                            />
+                          </div>
+                          <div className="w-full">
+                            <h3 className="text-primary-500 text-[18px]">
+                              {item?.product?.name}
+                            </h3>
+                            <div className="flex items-center mt-[2px] mb-2 justify-between">
+                              <div className="text-white text-sm">
+                                <span>{item?.product?.unit} x</span>
+                                <span>{item?.product?.price}</span>
+                              </div>
+                              <div className="w-fit text-white p-[2px] rounded-full border cursor-pointer">
+                                {/* <Image
                                 src={"/close.png"}
                                 alt="close"
                                 width={20}
                                 height={20}
                               /> */}
 
-                              <span
-                                className="p-2 text-sm w-[20px] h-[40px] text-center rounded-full"
-                                onClick={() => handleRemove(item)}
-                              >
-                                {" "}
-                                X
-                              </span>
+                                <span
+                                  className="p-2 text-sm w-[20px] h-[40px] text-center rounded-full"
+                                  onClick={() => handleRemove(item)}
+                                >
+                                  X
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                          <div>
-                            <div className="flex gap-2 items-center w-[100px] border border-[#e5e5e9] px-2 py-[8px] bg-white rounded-full">
-                              <button
-                                className="text-2xl w-6 h-6 flex items-center justify-center bg-[#e5e5e5] rounded-full"
-                                onClick={() => handleDecrement(item)}
-                              >
-                                -
-                              </button>
-                              <span className="text-md w-4">
-                                {item?.quantity}
-                              </span>
-                              <button
-                                className="text-2xl w-6 h-6 flex items-center justify-center bg-[#e5e5e5] rounded-full"
-                                onClick={() => handleIncrement(item)}
-                              >
-                                +
-                              </button>
+                            <div>
+                              <div className="flex gap-2 items-center w-[100px] border border-[#e5e5e9] px-2 py-[8px] bg-white rounded-full">
+                                <button
+                                  className="text-2xl w-6 h-6 flex items-center justify-center bg-[#e5e5e5] rounded-full"
+                                  onClick={() => handleDecrement(item)}
+                                >
+                                  -
+                                </button>
+                                <span className="text-md w-4">
+                                  {item?.quantity}
+                                </span>
+                                <button
+                                  className="text-2xl w-6 h-6 flex items-center justify-center bg-[#e5e5e5] rounded-full"
+                                  onClick={() => handleIncrement(item)}
+                                >
+                                  +
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </React.Fragment>
-                  );
-                })
+                      </React.Fragment>
+                    );
+                  })
                 : "No Item In Cart"}
             </div>
             <div className="bg-success-green-950 absolute flex flex-col justify-center items-center bottom-0 right-0 w-full p-4">

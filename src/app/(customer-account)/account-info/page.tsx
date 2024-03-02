@@ -9,7 +9,7 @@ import {
   updateUser,
   userOrders,
 } from "@/lib/actions/user-actions";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { useWishlist } from "@/components/Providers/wish-list-provider";
 import { ActionTypes, useCart } from "@/app/cart";
@@ -17,9 +17,11 @@ import { IOrder } from "@/lib/models/order.model";
 import { transformedOrderData } from "@/lib/utils";
 import { TransformedOrderDataType } from "@/lib/types";
 import { CircleUserRound } from "lucide-react";
+import { User } from "@/lib/interface";
 
 const MyAccount = () => {
-  const [menu, setMenu] = useState("Profile");
+  const searchParams = useSearchParams();
+  const [menu, setMenu] = useState(searchParams.get("tab") || "Profile");
   const { user, dispatch } = useUser();
   const router = useRouter();
   const [userInput, setUserInput] = useState({
@@ -29,7 +31,6 @@ const MyAccount = () => {
   });
   const [orders, setOrders] = useState<TransformedOrderDataType[]>();
   const { toggleSidebar, cartDispatch } = useCart();
-
   const { wishlist, removeFromWishlist } = useWishlist();
 
   useEffect(() => {
@@ -41,6 +42,12 @@ const MyAccount = () => {
     return () => {};
   }, [user]);
 
+  useEffect(() => {
+    if (searchParams.get("tab")) {
+      setMenu(searchParams.get("tab") || "Profile");
+    }
+  }, [searchParams]);
+
   const handleLogout = async () => {
     dispatch({ type: "LOGOUT" });
     await logoutAction();
@@ -48,16 +55,17 @@ const MyAccount = () => {
   };
 
   const handleUpdate = async () => {
-    //@ts-ignore
-    const data = await updateUser(user, userInput);
-    if (data?.user) {
-      dispatch({
-        type: "LOGIN",
-        payload: { ...data?.user, token: user?.token },
-      });
-      toast.success(data.message);
-    } else {
-      toast.error(data.error);
+    if (user) {
+      const data = await updateUser(user, userInput as User);
+      if (data?.user) {
+        dispatch({
+          type: "LOGIN",
+          payload: { ...data?.user, token: user?.token },
+        });
+        toast.success(data.message);
+      } else {
+        toast.error(data.error);
+      }
     }
   };
 
@@ -125,21 +133,7 @@ const MyAccount = () => {
         <div className="flex gap-20 items-start flex-col md:flex-row">
           <div className="bg-[#F0E5DB] w-full md:w-[286px] sticky top-0 p-4 rounded-md flex-none">
             <div className="relative w-fit">
-              {/* <Image
-                src={"/profile.png"}
-                alt="profile"
-                width={60}
-                height={60}
-              /> */}
               <CircleUserRound className="w-20 h-20 text-[#949494]" />
-
-              {/* <Image
-                src={"/camera.png"}
-                alt="profile"
-                width={60}
-                height={60}
-                className="absolute left-4 top-6"
-              /> */}
             </div>
             <div className="mt-8 grid gap-4">
               {sidebarArray?.map((value, index) => {
@@ -612,36 +606,7 @@ const orderTableHeading = [
     heading: "Action",
   },
 ];
-const orderTableData = [
-  {
-    imageUrl: "/product-order.png",
-    productName: "#98224",
-    orderDate: "Black Dates",
-    price: "₹220.00",
-    status: "Delivered ",
-  },
-  {
-    imageUrl: "/product-order.png",
-    productName: "#98224",
-    orderDate: "Black Dates",
-    price: "₹220.00",
-    status: "Delivered ",
-  },
-  {
-    imageUrl: "/product-order.png",
-    productName: "#98224",
-    orderDate: "Black Dates",
-    price: "₹220.00",
-    status: "Delivered ",
-  },
-  {
-    imageUrl: "/product-order.png",
-    productName: "#98224",
-    orderDate: "Black Dates",
-    price: "₹220.00",
-    status: "Delivered ",
-  },
-];
+
 const wishlistTableHeading = [
   {
     heading: "",
@@ -660,35 +625,5 @@ const wishlistTableHeading = [
   },
   {
     heading: "Action",
-  },
-];
-const wishlistTableData = [
-  {
-    productName: "#98224",
-    imageUrl: "/product-order.png",
-    orderDate: "Black Dates",
-    price: "₹220.00",
-    status: "In Stock",
-  },
-  {
-    productName: "#98224",
-    imageUrl: "/product-order.png",
-    orderDate: "Black Dates",
-    price: "₹220.00",
-    status: "Out of Stock",
-  },
-  {
-    productName: "#98224",
-    imageUrl: "/product-order.png",
-    orderDate: "Black Dates",
-    price: "₹220.00",
-    status: "In Stock",
-  },
-  {
-    productName: "#98224",
-    imageUrl: "/product-order.png",
-    orderDate: "Black Dates",
-    price: "₹220.00",
-    status: "Out of Stock",
   },
 ];
