@@ -9,6 +9,7 @@ import { IOrder, OrderModel } from "../models/order.model";
 import { connectToDB } from "@/config/mongoose.config";
 import crypto from "crypto";
 import { Payment } from "../models/payment.model";
+import { Product } from "../models/products.model";
 
 const instance = new Razorpay({
   key_id: process.env.RAZORPAY_API_KEY as string,
@@ -22,38 +23,51 @@ export const handlePaymentAction = async (
   additional: { total: number; totalQuantity: number },
   _id: string
 ) => {
-  const payment_capture = 1;
-  const amount = additional.total * 100; // amount in paisa. In our case it's INR 1
-  const currency = "INR";
-  const options = {
-    amount: amount.toString(),
-    currency,
-    payment_capture,
-    notes: {
-      name: userInfo.firstName,
-      phone: userInfo.phone,
-      email: userInfo.email,
-    },
-  };
-  const order = await instance.orders.create(options);
+  const total = 0;
+  const products = [];
 
-  const formateOrderInfo = {
-    ...userInfo,
-    orderSummary: orderInfo.map((item) => ({
-      ...item,
-      productId: item._id,
-      name: item?.product?.name,
-      price: item?.product?.price,
-    })),
+  for (const item of orderInfo) {
+    const product = await Product.findById(item?._id);
+    const isQuantity = product?.quantity && product?.quantity >= item.quantity;
+    if (!isQuantity) {
+      return {
+        error: `We're sorry, but ${product.product} is currently out of stock. Please check back later or contact customer support for more information.`,
+      };
+    }
+  }
 
-    createdId: _id,
-    orderId: order.id,
-  };
+  // const payment_capture = 1;
+  // const amount = additional.total * 100; // amount in paisa. In our case it's INR 1
+  // const currency = "INR";
+  // const options = {
+  //   amount: amount.toString(),
+  //   currency,
+  //   payment_capture,
+  //   notes: {
+  //     name: userInfo.firstName,
+  //     phone: userInfo.phone,
+  //     email: userInfo.email,
+  //   },
+  // };
+  // const order = await instance.orders.create(options);
 
-  await connectToDB();
-  await OrderModel.create(formateOrderInfo);
+  // const formateOrderInfo = {
+  //   ...userInfo,
+  //   orderSummary: orderInfo.map((item) => ({
+  //     ...item,
+  //     productId: item._id,
+  //     name: item?.product?.name,
+  //     price: item?.product?.price,
+  //   })),
 
-  return order;
+  //   createdId: _id,
+  //   orderId: order.id,
+  // };
+
+  // await connectToDB();
+  // await OrderModel.create(formateOrderInfo);
+
+  // return order;
 };
 
 export const handleCheckoutAction = async (

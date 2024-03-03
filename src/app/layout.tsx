@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { Inter, Marcellus, Mulish } from "next/font/google";
+import { Marcellus } from "next/font/google";
 import "./globals.css";
 import "../../styles/colors.scss";
 import Header from "../../components/header/Header";
 import Footer from "../../components/footer/footer";
-import Link from "next/link";
 import Script from "next/script";
 import { CartProvider } from "./cart";
 import { Toaster } from "@/components/ui/sonner";
@@ -30,7 +29,7 @@ export default function RootLayout({
     <CartProvider>
       <html lang="en">
         <body className={marcellus.className}>
-          <WishlistProvider>
+        <WishlistProvider>
             <UserProvider>
               <Header />
               <Suspense fallback={<Loading />}>

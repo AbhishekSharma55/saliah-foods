@@ -127,6 +127,7 @@ const Checkout = () => {
     { totalValue: 0, totalQuantity: 0 }
   );
 
+  console.log({ cartState });
   const handleRemoveAllItems = () => {
     cartDispatch({ type: ActionTypes.REMOVE_ALL_ITEMS, payload: [] });
   };
@@ -141,6 +142,11 @@ const Checkout = () => {
           { total: totalValue, totalQuantity },
           user?._id || ""
         );
+
+        if (data?.error) {
+          toast.error(data.error);
+          return;
+        }
         if (!data.id) {
           toast.error(
             "Payment failed. Please try again. Contact support for help"
@@ -361,7 +367,7 @@ const Checkout = () => {
                             <div className="flex justify-center gap-4">
                               <FormControl>
                                 <Input
-                                readOnly={disablePhone.disabled}
+                                  readOnly={disablePhone.disabled}
                                   placeholder="Phone Number"
                                   type="tel"
                                   {...field}

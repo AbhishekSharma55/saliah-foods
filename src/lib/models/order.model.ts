@@ -80,12 +80,11 @@ const orderSchema = new Schema<IOrder>(
     },
     orderSummary: [
       {
-        productId: String,
-        //  {
-        //   ref: "Product",
-        //   type: mongoose.Schema.Types.ObjectId,
-        //   // required: true,
-        // },
+        productId: {
+          ref: "Product",
+          type: mongoose.Schema.Types.ObjectId,
+          required: true,
+        },
         name: {
           type: String,
           required: false,
