@@ -16,6 +16,7 @@ export interface IOrder extends Document {
   orderSummary: [
     {
       name?: string;
+      image?: string;
       unit?: string;
       quantity: number;
       price?: number;
@@ -25,6 +26,9 @@ export interface IOrder extends Document {
       _id?: string;
     }
   ];
+  paymentStatus: string;
+  total: number;
+  totalQuantity: number;
   status: string;
   createdId: string;
   paymentId?: string;
@@ -85,6 +89,9 @@ const orderSchema = new Schema<IOrder>(
           type: mongoose.Schema.Types.ObjectId,
           required: true,
         },
+        image: {
+          type: String,
+        },
         name: {
           type: String,
           required: false,
@@ -112,15 +119,28 @@ const orderSchema = new Schema<IOrder>(
         },
       },
     ],
-    // payment status
+    // payment paymentStatus
+    paymentStatus: {
+      type: String,
+      default: "Pending",
+    },
     status: {
       type: String,
       default: "Pending",
     },
+
     createdId: { ref: "User", type: mongoose.Schema.Types.ObjectId },
     paymentId: {
       type: String,
       required: false,
+    },
+    total: {
+      type: Number,
+      required: true,
+    },
+    totalQuantity: {
+      type: Number,
+      required: true,
     },
 
     orderId: {

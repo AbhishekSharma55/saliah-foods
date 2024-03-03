@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     await connectToDB();
     const updateOrderPromise = OrderModel.findOneAndUpdate(
       { orderId: orderId },
-      { paymentId: razorpay_payment_id, status: "paid" }
+      { paymentId: razorpay_payment_id, paymentStatus: "paid" }
     );
     const createPaymentPromise = Payment.create({
       orderId: razorpay_order_id,

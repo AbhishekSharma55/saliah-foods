@@ -9,7 +9,7 @@ import { IOrder, OrderModel } from "../models/order.model";
 import { connectToDB } from "@/config/mongoose.config";
 import crypto from "crypto";
 import { Payment } from "../models/payment.model";
-import { Product } from "../models/products.model";
+import { Product, ProductSchema } from "../models/products.model";
 
 const instance = new Razorpay({
   key_id: process.env.RAZORPAY_API_KEY as string,
@@ -23,51 +23,62 @@ export const handlePaymentAction = async (
   additional: { total: number; totalQuantity: number },
   _id: string
 ) => {
-  const total = 0;
+  let total = 0;
+  let totalQuantity = 0;
   const products = [];
-
+  await connectToDB();
   for (const item of orderInfo) {
-    const product = await Product.findById(item?._id);
-    const isQuantity = product?.quantity && product?.quantity >= item.quantity;
-    if (!isQuantity) {
-      return {
-        error: `We're sorry, but ${product.product} is currently out of stock. Please check back later or contact customer support for more information.`,
-      };
+    const product: ProductSchema | null = await Product.findById(item?._id);
+    if (product) {
+      const isQuantity =
+        product?.quantity && product?.quantity >= item.quantity;
+      if (!isQuantity) {
+        return {
+          error: `We're sorry, but ${product.product} is currently out of stock. Please check back later or contact customer support for more information.`,
+        };
+      }
+      products.push({
+        name: item.product.name,
+        image: product.images[0],
+        unit: item.product?.unit,
+        quantity: item.quantity,
+        total: item.product.price * item.quantity,
+        subTotal: item.product.price * item.quantity,
+        productId: product._id,
+        price: item.product.price,
+      });
+      total = item.product.price * item.quantity + total;
+      totalQuantity = totalQuantity + item.quantity;
     }
   }
 
-  // const payment_capture = 1;
-  // const amount = additional.total * 100; // amount in paisa. In our case it's INR 1
-  // const currency = "INR";
-  // const options = {
-  //   amount: amount.toString(),
-  //   currency,
-  //   payment_capture,
-  //   notes: {
-  //     name: userInfo.firstName,
-  //     phone: userInfo.phone,
-  //     email: userInfo.email,
-  //   },
-  // };
-  // const order = await instance.orders.create(options);
+  const payment_capture = 1;
+  const amount = total * 100; // amount in paisa. In our case it's INR 1
+  const currency = "INR";
+  const options = {
+    amount: amount.toString(),
+    currency,
+    payment_capture,
+    notes: {
+      name: userInfo.firstName,
+      phone: userInfo.phone,
+      email: userInfo.email,
+    },
+  };
+  const order = await instance.orders.create(options);
+  const formateOrderInfo = {
+    ...userInfo,
+    orderSummary: products,
+    createdId: _id,
+    orderId: order.id,
+    total,totalQuantity
+  };
 
-  // const formateOrderInfo = {
-  //   ...userInfo,
-  //   orderSummary: orderInfo.map((item) => ({
-  //     ...item,
-  //     productId: item._id,
-  //     name: item?.product?.name,
-  //     price: item?.product?.price,
-  //   })),
 
-  //   createdId: _id,
-  //   orderId: order.id,
-  // };
 
-  // await connectToDB();
-  // await OrderModel.create(formateOrderInfo);
+  await OrderModel.create(formateOrderInfo);
 
-  // return order;
+  return order;
 };
 
 export const handleCheckoutAction = async (
@@ -87,7 +98,7 @@ export const handleCheckoutAction = async (
     await connectToDB();
     const updateOrderPromise = OrderModel.findOneAndUpdate(
       { orderId: info.orderId },
-      { paymentId: razorpay_payment_id, status: "paid" }
+      { paymentId: razorpay_payment_id, paymentStatus: "paid" }
     );
     const createPaymentPromise = Payment.create({
       orderId: razorpay_order_id,

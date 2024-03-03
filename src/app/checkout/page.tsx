@@ -127,7 +127,6 @@ const Checkout = () => {
     { totalValue: 0, totalQuantity: 0 }
   );
 
-  console.log({ cartState });
   const handleRemoveAllItems = () => {
     cartDispatch({ type: ActionTypes.REMOVE_ALL_ITEMS, payload: [] });
   };
@@ -136,85 +135,82 @@ const Checkout = () => {
     try {
       setIsLoading(true);
       if (user) {
-        const data = await handlePaymentAction(
+        const data: any = await handlePaymentAction(
           values,
           cartState?.cartItems as unknown as OrderItem[],
           { total: totalValue, totalQuantity },
           user?._id || ""
         );
-
-        if (data?.error) {
+        if (!data?.error) {
+          const options = {
+            key: process.env.NEXT_PUBLIC_RAZORPAY_API_KEY,
+            amount: data.amount,
+            currency: "INR",
+            name: values.firstName,
+            description: "Tutorial of RazorPay",
+            order_id: data.id,
+            prefill: {
+              name: values.firstName,
+              email: values.email,
+              contact: values.phone,
+            },
+            notes: {
+              address: `${values.streetAddress}, ${values.city}, ${values.state}, ${values.country} - ${values.pinCode}`,
+            },
+            theme: {
+              color: "#121212",
+            },
+            handler: (response: RazorpayPaymentSuccess) => {
+              fetch("/api/payment", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  razorpay_order_id: data.id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  orderId: data.id,
+                  createdId: user?._id || "",
+                }),
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  if (data.message) {
+                    toast.success("Payment successful");
+                    router.replace(
+                      `/payment-success?paymentId=${data?.payment?.paymentId}`
+                    );
+                  }
+                })
+                .catch((error) => {
+                  console.log(error);
+                  toast.error(
+                    "Payment failed. Please try again. Contact support for help"
+                  );
+                });
+            },
+          };
+          //@ts-ignore
+          const paymentObject = new window.Razorpay(options);
+          paymentObject.open();
+          paymentObject.on("payment.failed", function (response: any) {
+            toast.error(
+              String(response?.error?.description) ||
+                "Payment failed. Please try again. Contact support for help"
+            );
+          });
+        } else if (data?.error) {
           toast.error(data.error);
           return;
-        }
-        if (!data.id) {
+        } else if (!data.id) {
           toast.error(
             "Payment failed. Please try again. Contact support for help"
           );
           return;
+        } else {
+          setShowLoggingMessage(defaultMessage);
         }
-
-        const options = {
-          key: process.env.NEXT_PUBLIC_RAZORPAY_API_KEY,
-          amount: data.amount,
-          currency: "INR",
-          name: values.firstName,
-          description: "Tutorial of RazorPay",
-          order_id: data.id,
-          prefill: {
-            name: values.firstName,
-            email: values.email,
-            contact: values.phone,
-          },
-          notes: {
-            address: `${values.streetAddress}, ${values.city}, ${values.state}, ${values.country} - ${values.pinCode}`,
-          },
-          theme: {
-            color: "#121212",
-          },
-          handler: (response: RazorpayPaymentSuccess) => {
-            fetch("/api/payment", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                razorpay_order_id: data.id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                orderId: data.id,
-                createdId: user?._id || "",
-              }),
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                if (data.message) {
-                  toast.success("Payment successful");
-                  router.replace(
-                    `/payment-success?paymentId=${data?.payment?.paymentId}`
-                  );
-                }
-              })
-              .catch((error) => {
-                console.log(error);
-                toast.error(
-                  "Payment failed. Please try again. Contact support for help"
-                );
-              });
-          },
-        };
-
-        //@ts-ignore
-        const paymentObject = new window.Razorpay(options);
-        paymentObject.open();
-        paymentObject.on("payment.failed", function (response: any) {
-          toast.error(
-            String(response?.error?.description) ||
-              "Payment failed. Please try again. Contact support for help"
-          );
-        });
-      } else {
-        setShowLoggingMessage(defaultMessage);
       }
     } catch (error) {
       toast.error("Payment failed. Please try again. Contact support for help");
