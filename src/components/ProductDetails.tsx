@@ -346,10 +346,8 @@ const ProductDetails = ({ product }: { product: ProductSchema }) => {
         </div>
         {tab === "Descriptions" && (
           <div className="hidden md:block">
-            <h3 className="mb-6 text-light-900">Buy 1 Get 1 free pack</h3>
-
             <div
-              className="text-light-500"
+              className="text-light-500 unset"
               dangerouslySetInnerHTML={{
                 __html: targetProduct?.main_description as any,
               }}
@@ -443,20 +441,12 @@ const ProductDetails = ({ product }: { product: ProductSchema }) => {
                 <div className="p-4">
                   {tab.tabItem === "Descriptions" && (
                     <div>
-                      <h3 className="mb-6 text-light-900">Buy 1 Get 1 free</h3>
-                      <div className="flex items-center gap-2 pb-2">
-                        <div className="flex-none">
-                          <Image
-                            src={"/story/Wish.png"}
-                            alt="wish"
-                            width={18}
-                            height={18}
-                          />
-                        </div>
-                        <p className="text-light-500">
-                          {targetProduct?.additional_information?.benefits}
-                        </p>
-                      </div>
+                      <div
+                        className="text-light-500 unset"
+                        dangerouslySetInnerHTML={{
+                          __html: targetProduct?.main_description as any,
+                        }}
+                      ></div>
                     </div>
                   )}
 
