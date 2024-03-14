@@ -10,6 +10,8 @@ import { connectToDB } from "@/config/mongoose.config";
 import crypto from "crypto";
 import { Payment } from "../models/payment.model";
 import { Product, ProductSchema } from "../models/products.model";
+import { Coupon, CouponSchema } from '@/lib/models/coupon.model';
+import { calculateDiscount } from "../utils";
 
 const instance = new Razorpay({
   key_id: process.env.RAZORPAY_API_KEY as string,
@@ -52,6 +54,13 @@ export const handlePaymentAction = async (
     }
   }
 
+  if(userInfo.coupon){
+    const coupon = await Coupon.findOne({ coupon: userInfo.coupon });
+    if(coupon){
+      const discountAmount = +calculateDiscount(coupon, total);
+      total = (total - discountAmount);
+    }
+  }
   const payment_capture = 1;
   const amount = total * 100; // amount in paisa. In our case it's INR 1
   const currency = "INR";

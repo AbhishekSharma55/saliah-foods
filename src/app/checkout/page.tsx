@@ -55,11 +55,24 @@ import OtpDialog from "@/components/Dialogs/OtpModal";
 
 const Checkout = () => {
   const { cartState, cartDispatch } = useCart();
+  const { totalValue, totalQuantity } = cartState?.cartItems?.reduce(
+    (accumulator, item) => {
+      const { totalValue, totalQuantity } = accumulator;
+      const itemTotal = item.quantity * item.product.price;
+      return {
+        totalValue: totalValue + itemTotal,
+        totalQuantity: totalQuantity + item.quantity,
+      };
+    },
+    { totalValue: 0, totalQuantity: 0 }
+  );
   const { user, dispatch } = useUser();
   const router = useRouter();
   const [selectedCountry, setSelectedCountry] = useState("India");
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [discount, setDiscount] = useState(0);
+  const [discountedTotal, setDiscountedTotal] = useState(totalValue);
   const [disablePhone, setDisablePhone] = useState({
     disabled: false,
     phone: null,
@@ -80,19 +93,24 @@ const Checkout = () => {
       state: "",
       streetAddress: "",
       coupon: "",
-      // area: "",
       note: "",
     },
   });
-
+  useEffect(() => {
+    if (discount && totalValue) {
+      setShowLoggingMessage(defaultMessage);
+    } else {
+      setShowLoggingMessage("");
+    }
+    return () => { };
+  }, [user]);
   useEffect(() => {
     if (!user?._id) {
       setShowLoggingMessage(defaultMessage);
     } else {
       setShowLoggingMessage("");
     }
-    return () => {};
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => { };
   }, [user]);
 
   const couponForm = useForm<z.infer<typeof couponSchema>>({
@@ -101,7 +119,30 @@ const Checkout = () => {
       coupon: "",
     },
   });
+  useEffect(() => {
+    if (totalValue && form.getValues().coupon) {
+      handlecoupon(form.getValues().coupon || "");
+    }
+    return () => { };
+  }, [totalValue]);
 
+  const handlecoupon = async (coupon:string) =>{
+    if(!coupon)return;
+    const {data} = await axios.post('/api/coupon', { couponCode:coupon, totalAmount: totalValue});
+    if (data.data) {
+      setDiscount(data.data);
+      form.setValue("coupon", coupon, { shouldValidate: true });
+      toast.error(data?.message || "Coupon code applied");
+      setDiscountedTotal(totalValue - data.data);
+    } else {
+
+      console.error('Invalid coupon code from frontend');
+      toast.error(data?.error || "Invalid coupon code");
+    }
+  }
+  const handleApplyCoupon = async (values: z.infer<typeof couponSchema>) => {
+    handlecoupon(values?.coupon || "");
+  };
   const handleIncrement = (item: any) => {
     cartDispatch({ type: ActionTypes.INCREASE_QUANTITY, payload: item });
   };
@@ -114,37 +155,26 @@ const Checkout = () => {
     cartDispatch({ type: ActionTypes.REMOVE_FROM_CART, payload: item });
   };
 
-  // Calculate the total value and total quantity ...
-  const { totalValue, totalQuantity } = cartState?.cartItems?.reduce(
-    (accumulator, item) => {
-      const { totalValue, totalQuantity } = accumulator;
-      const itemTotal = item.quantity * item.product.price;
-      return {
-        totalValue: totalValue + itemTotal,
-        totalQuantity: totalQuantity + item.quantity,
-      };
-    },
-    { totalValue: 0, totalQuantity: 0 }
-  );
-
   const handleRemoveAllItems = () => {
     cartDispatch({ type: ActionTypes.REMOVE_ALL_ITEMS, payload: [] });
   };
 
   async function onSubmit(values: z.infer<typeof checkoutSchema>) {
     try {
+      console.log(values)
       setIsLoading(true);
+      console.log(discountedTotal)
       if (user) {
         const data: any = await handlePaymentAction(
           values,
           cartState?.cartItems as unknown as OrderItem[],
-          { total: totalValue, totalQuantity },
+          { total: discountedTotal, totalQuantity },
           user?._id || ""
-        );
+        );        
         if (!data?.error) {
           const options = {
             key: process.env.NEXT_PUBLIC_RAZORPAY_API_KEY,
-            amount: data.amount,
+            amount: discountedTotal * 100,
             currency: "INR",
             name: values.firstName,
             description: "Tutorial of RazorPay",
@@ -197,7 +227,7 @@ const Checkout = () => {
           paymentObject.on("payment.failed", function (response: any) {
             toast.error(
               String(response?.error?.description) ||
-                "Payment failed. Please try again. Contact support for help"
+              "Payment failed. Please try again. Contact support for help"
             );
           });
         } else if (data?.error) {
@@ -328,7 +358,6 @@ const Checkout = () => {
                         </FormItem>
                       )}
                     />
-                    {/* <InputField label="Last name" placeholder="Last name" /> */}
                   </div>
 
                   <div className="md:flex gap-4 w-full">
@@ -436,15 +465,10 @@ const Checkout = () => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {/* {stateCollection.map((c) => (
-                                <SelectItem key={c.option} value={c.option}>
-                                  {c.option}
-                                </SelectItem>
-                              ))} */}
 
                               {(
                                 countryStateData[
-                                  selectedCountry as keyof CountryStateData
+                                selectedCountry as keyof CountryStateData
                                 ] || []
                               ).map((c: string) => (
                                 <SelectItem key={c} value={c}>
@@ -474,40 +498,6 @@ const Checkout = () => {
                         </FormItem>
                       )}
                     />
-                    {/* <FormField
-                      control={form.control}
-                      name="city"
-                      render={({ field }) => (
-                        <FormItem className="flex-1">
-                          <FormLabel>Town/City</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a city" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {cityCollection.map((c) => (
-                                <SelectItem key={c.option} value={c.option}>
-                                  {c.option}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    /> */}
-                    {/* <InputField
-                      label="Pin code"
-                      placeholder="Pin code"
-                      className="mt-0"
-                    /> */}
-
                     <FormField
                       control={form.control}
                       name="pinCode"
@@ -669,17 +659,11 @@ const Checkout = () => {
                 className="w-full justify-center text-sm font-semibold mt-6 !bg-[#C3966F]"
               />
               <div className="flex items-center justify-between gap-2 mt-6">
-                {/* <input
-                      type="text"
-                      placeholder="Input"
-                      className=" rounded-md py-0 h-[40px] pl-2 w-full"
-                    /> */}
-
                 <div className="grid w-full max-w-sm items-center gap-1.5">
                   <Form {...couponForm}>
-                    <form id="couponForm" className="flex items-end gap-x-2">
+                    <form id="couponForm" className="flex items-end gap-x-2" onSubmit={couponForm.handleSubmit(handleApplyCoupon)}>
                       <FormField
-                        control={form.control}
+                        control={couponForm.control}
                         name="coupon"
                         render={({ field }) => (
                           <FormItem>
@@ -705,11 +689,11 @@ const Checkout = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>₹{totalValue}</span>
+                  <span>₹{+totalValue - discount}</span>
                 </div>
                 <div className="flex justify-between font-semibold">
                   <span>Total</span>
-                  <span>₹{totalValue}</span>
+                  <span>₹{+totalValue - discount}</span>
                 </div>
                 <p>
                   Your personal data will be used to process your order, support

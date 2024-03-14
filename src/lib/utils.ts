@@ -1,5 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { Coupon, CouponSchema } from '@/lib/models/coupon.model';
+
 import { IOrder } from "./models/order.model";
 import { TransformedOrderDataType } from "./types";
 import moment from "moment";
@@ -23,3 +25,7 @@ export const transformedOrderData = async (
 
   return data;
 };
+export function calculateDiscount(coupon: CouponSchema, totalAmount: number): number {
+  const discount = (coupon.discount / 100) * totalAmount;
+  return discount > coupon.maximum_discount ? coupon.maximum_discount : discount;
+}

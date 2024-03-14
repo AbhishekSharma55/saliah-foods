@@ -3,6 +3,7 @@ import { connectToDB } from "@/config/mongoose.config";
 import crypto from "crypto";
 import { OrderModel } from "@/lib/models/order.model";
 import { Payment } from "@/lib/models/payment.model";
+import { Product } from "@/lib/models/products.model";
 
 const instance = new Razorpay({
   key_id: process.env.RAZORPAY_API_KEY as string,
@@ -44,6 +45,12 @@ export async function POST(req: Request) {
       updateOrderPromise,
       createPaymentPromise,
     ]);
+    for (const item of order.orderSummary) {
+      await Product.findOneAndUpdate(
+        { _id: item.productId },
+        { $inc: { quantity: -item.quantity } }
+        );
+    }
     if (payment && order)
       return Response.json({ message: "Payment successful", order, payment });
 
